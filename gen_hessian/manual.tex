@@ -1,0 +1,114 @@
+% Anything on a line after a `%' gets ignored by TeX
+% Curly braces {, } are used for grouping
+
+\documentclass[20pt]{article}
+
+% This line requests non-standard packages (which you must make available)
+\usepackage{amsmath,amssymb,graphicx,float}
+\floatplacement{figure}{H}
+
+\begin{document}
+
+\begin{center}
+{\large \bf Hessian Generating Manual } \\   % use \\ to end centered lines
+%{\large Your name (not bold). }
+\end{center}
+
+This manual explains how to generate a complete Hessian from Alamode .fcs files. The following sections highlight the steps in order that should be taken.
+
+%\emph{italics,} {\bf bold,} {\large larger} or {\small smaller} type.
+
+%Subscripts$_i$ and superscripts$^{i, j}$.
+
+%%% GENERATING YOUR STRUCTURE %%%
+\section{Generating Your Structure}
+
+Build your structure with a given lattice vector and basis vector matrix with \emph{fillbox.m}. \emph{Save these matrices for use in Section 4.}
+
+Use writecart.m to write the positions in cartesian coordinates and writedirect.m to write the positions in direct coordinates.
+
+
+
+
+%%% OBTAINING THE FCS FILE %%%
+\section{Obtaining The FCS File}
+
+Use Alamode to obtain a .fcs file as usual.
+
+
+%%% OBTAINING THE NEIGHBORLISTS AND STRUCTURES%%%
+\section{Obtaining the Neighborlists and Structures}
+
+Use the neighborlist pair style \texttt{\emph{pair\_neighlist\_gen.cpp}} to generate neighborlists for your original (NLORIG) and final structures (NLNEW). You also need the original (SORIG) and new (SNEW) structures. 
+
+NLORIG is the neighborlist of the structure used in Section 2. 
+
+NLNEW is the neighborlist of the new structure. 
+
+SORIG are the cartesian coordinates of the structure used in Section 2. 
+
+SNEW are the cartesian coordinates of the new structure. 
+
+Steps:
+
+1) Run in.run-nl for original structure to get NEIGHLIST. Rename to NLORIG.
+
+2) Run in.run-nl for new structure to get NEIGHLIST. Rename to NLNEW.
+
+3) Put NLORIG, NLNEW, SORIG, SNEW into the directory containing the octave scripts.
+
+%%% BUILDING THE HESSIAN%%%
+\section{Building The Hessian}
+Now we need to build the Hessian with the data obtained in Steps 1-3.
+
+\subsection{\emph{formatfcs.m} - Building the IFC Neighborlist}
+
+This involves taking the IFCs for the primitive lattice and applying crystal symmetry to generate IFCs for a larger supercell. After NLORIG, NLNEW, SORIG, SNEW, and the .fcs file are in the directory, run \emph{formatfcs.m}.
+
+INPUTS: See the beginning of the \emph{formatfcs.m} file.
+
+1) Lattice vector matrix $A$ in direct coordinates.
+
+2) Basis vector matrix $b$ in direct coordinates.
+
+3) Basis atoms ID vector. Obtain these by looking at the atom IDs in the Alamode .fcs file.
+
+4) Minimum cutoff to set IFCs zero below this cutoff. See Section 4.3 for more details.
+
+
+OUTPUTS:
+
+1) RNL file.
+
+\subsection{\emph{buildhessian.m} - Building the Hessian}
+Now run \emph{buildhessian.m}
+
+This step creates IILIST and IJLIST to be used for the hessian2 pair style.
+
+\subsection{Setting IFCs = 0}
+
+If you want to make IFCs = 0.0 before a certain cutoff, edit lines 134 for i-i interactions and 143 for i-j interactions.
+
+\subsection{Taking Differences in Force Constants}
+If you want to calculate the differences in IFCs between two calculations, repeat Steps 1-4 for different potentials. Then run makedifference.m to create a RNL that is a difference between the two RNLs. Then run buildhessian.m according to Step 4.
+
+
+
+%%% TAKING DIFFERENCES IN IFCS%%%
+\section{Running the TEP in LAMMPS}
+See the example in the /5-run folder. The format inputs for the potential are:
+
+1) Just make this number zero.
+
+2) Cutoff.
+
+3) IILIST
+
+4) IJLIST
+
+5) EQUIL - This is a file of equilibrium cartesian positions created in Step 1.
+
+
+\end{document}
+\grid
+
