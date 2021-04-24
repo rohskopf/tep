@@ -1,1 +1,9 @@
-This is the git repo for TEP
+This is the git repo for Taylor Expansion Potential (TEP), used in molecular dynamics (MD) simulations. 
+This potential is used with the LAMMPS MD package.
+
+Simply copy and paste these pair styles into lammps/src then install LAMMPS with:
+
+make mpi
+
+Please reach out to me for any questions/errors.
+
